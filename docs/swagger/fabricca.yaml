@@ -1,0 +1,408 @@
+openapi: 3.0.0
+info:
+  title: Fabric CA API
+  description: API para gestionar Fabric Certificate Authorities (CAs)
+  version: 1.0.0
+servers:
+  - url: http://host.docker.internal:8080
+    description: "Test Server"
+security:
+  - BasicAuth: []
+paths:
+  /api/v1/create-fabric-ca:
+    post:
+      summary: Crear una nueva Fabric CA
+      description: Crea una nueva instancia de Fabric Certificate Authority
+      operationId: createFabricCA
+      tags:
+        - Fabric CA
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCAOptions'
+            example:
+              image: "hyperledger/fabric-ca"
+              version: "1.5.6"
+              capacity: "1Gi"
+              storageClass: "standard"
+              name: "ca-org0"
+              enrollID: "enroll"
+              enrollPW: "enrollpw"
+              hosts: ["ca-org0.homelab.local"]
+              istioPort: 443
+      responses:
+        '200':
+          description: Fabric CA creada exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Fabric CA creado exitosamente"
+        '400':
+          description: Parámetros inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/fabric-ca/register:
+    post:
+      summary: Registrar una nueva identidad en Fabric CA
+      description: Registra una nueva identidad en una Fabric CA existente
+      operationId: registerFabricCA
+      tags:
+        - Fabric CA
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterCAOptions'
+      responses:
+        '200':
+          description: Identidad registrada exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Fabric CA registrado exitosamente"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/v1/fabric-ca/enroll:
+    post:
+      summary: Inscribir un usuario en Fabric CA
+      description: Inscribe un usuario en una Fabric CA y genera los certificados correspondientes
+      operationId: enrollFabricUser
+      tags:
+        - Fabric CA
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnrollCAOptions'
+      responses:
+        '200':
+          description: Usuario inscrito exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Fabric CA enroll correcto"
+                  output:
+                    type: string
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/v1/fabric-ca/register-user:
+    post:
+      summary: Registrar un nuevo usuario en Fabric CA
+      description: Registra un nuevo usuario en una Fabric CA existente
+      operationId: registerUserFabricCA
+      tags:
+        - Fabric CA
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterUserCAOptions'
+      responses:
+        '200':
+          description: Usuario registrado exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Usuario registrado exitosamente en Fabric CA"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/v1/fabric-ca/check:
+    get:
+      summary: Verificar estado de todas las Fabric CAs
+      description: Verifica el estado de todas las Fabric CAs en todos los namespaces
+      operationId: checkCreateFabricCA
+      tags:
+        - Fabric CA
+      responses:
+        '200':
+          description: Estado de las Fabric CAs
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Todas las Fabric CA están en ejecución"
+                  status:
+                    type: string
+        '404':
+          description: No se encontraron Fabric CAs o no están en ejecución
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  status:
+                    type: string
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/v1/fabric-ca/status:
+    post:
+      summary: Verificar estado de una Fabric CA específica
+      description: Verifica el estado de una Fabric CA específica en un namespace dado
+      operationId: checkFabricCAStatus
+      tags:
+        - Fabric CA
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CheckCAOptions'
+      responses:
+        '200':
+          description: Estado de la Fabric CA
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "CA test-ca is Running in namespace test-ns"
+                  pod:
+                    type: string
+                  status:
+                    type: string
+        '404':
+          description: Fabric CA no encontrada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  status:
+                    type: string
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+components:
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+  schemas:
+    CreateCAOptions:
+      type: object
+      required:
+        - image
+        - version
+        - storageClass
+        - capacity
+        - name
+        - enrollID
+        - enrollPW
+        - hosts
+        - istioPort
+      properties:
+        image:
+          type: string
+          description: Imagen Docker de Fabric CA
+        version:
+          type: string
+          description: Versión de Fabric CA
+        storageClass:
+          type: string
+          description: Clase de almacenamiento de Kubernetes
+        capacity:
+          type: string
+          description: Capacidad de almacenamiento
+        name:
+          type: string
+          description: Nombre de la Fabric CA
+        enrollID:
+          type: string
+          description: ID de inscripción
+        enrollPW:
+          type: string
+          description: Contraseña de inscripción
+        hosts:
+          type: array
+          items:
+            type: string
+          description: Lista de hosts permitidos
+        istioPort:
+          type: integer
+          description: Puerto para Istio
+
+    RegisterCAOptions:
+      type: object
+      required:
+        - name
+        - user
+        - secret
+        - type
+        - enrollID
+        - enrollSecret
+        - mspid
+        - caURL
+      properties:
+        name:
+          type: string
+          description: Nombre de la Fabric CA
+        user:
+          type: string
+          description: Nombre del usuario a registrar
+        secret:
+          type: string
+          description: Secreto del usuario
+        type:
+          type: string
+          description: Tipo de identidad
+        enrollID:
+          type: string
+          description: ID de inscripción
+        enrollSecret:
+          type: string
+          description: Secreto de inscripción
+        mspid:
+          type: string
+          description: MSP ID
+        caURL:
+          type: string
+          description: URL de la CA
+
+    EnrollCAOptions:
+      type: object
+      required:
+        - name
+        - namespace
+        - user
+        - secret
+        - mspid
+        - caName
+        - output
+      properties:
+        name:
+          type: string
+          description: Nombre de la Fabric CA
+        namespace:
+          type: string
+          description: Namespace de Kubernetes
+        user:
+          type: string
+          description: Usuario a inscribir
+        secret:
+          type: string
+          description: Secreto del usuario
+        mspid:
+          type: string
+          description: MSP ID
+        caName:
+          type: string
+          description: Nombre de la CA
+        output:
+          type: string
+          description: Ruta de salida para los certificados
+
+    RegisterUserCAOptions:
+      type: object
+      required:
+        - name
+        - user
+        - secret
+        - type
+        - enrollID
+        - enrollSecret
+        - mspid
+      properties:
+        name:
+          type: string
+          description: Nombre de la Fabric CA
+        user:
+          type: string
+          description: Usuario a registrar
+        secret:
+          type: string
+          description: Secreto del usuario
+        type:
+          type: string
+          description: Tipo de usuario
+        enrollID:
+          type: string
+          description: ID de inscripción
+        enrollSecret:
+          type: string
+          description: Secreto de inscripción
+        mspid:
+          type: string
+          description: MSP ID
+
+    CheckCAOptions:
+      type: object
+      required:
+        - name
+        - namespace
+      properties:
+        name:
+          type: string
+          description: Nombre de la Fabric CA
+        namespace:
+          type: string
+          description: Namespace de Kubernetes
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Mensaje de error
+
+  responses:
+    BadRequest:
+      description: Solicitud inválida
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    InternalError:
+      description: Error interno del servidor
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
