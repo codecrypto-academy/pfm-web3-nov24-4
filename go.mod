@@ -1,4 +1,4 @@
-module github.com/coffeloop/codecrypto-academy/pfm-web3-nov24-4 
+module github.com/codecrypto-academy/pfm-web3-nov24-4
 
 go 1.23.2
 

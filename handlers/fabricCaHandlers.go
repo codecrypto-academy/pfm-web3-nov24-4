@@ -8,8 +8,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/coffeloop/codecrypto-academy/internal"
-	"github.com/coffeloop/codecrypto-academy/models"
+	"github.com/codecrypto-academy/pfm-web3-nov24-4/internal"
+	"github.com/codecrypto-academy/pfm-web3-nov24-4/models"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 	v1 "k8s.io/api/core/v1"

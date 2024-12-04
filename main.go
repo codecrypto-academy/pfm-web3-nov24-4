@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/coffeloop/codecrypto-academy/handlers"
+	"github.com/codecrypto-academy/pfm-web3-nov24-4/handlers"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
