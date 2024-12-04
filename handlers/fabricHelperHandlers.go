@@ -6,7 +6,7 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/coffeloop/codecrypto-academy/models"
+	"github.com/codecrypto-academy/pfm-web3-nov24-4/models"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 )

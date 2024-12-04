@@ -27,3 +27,4 @@ En posteriores versiones se añadirá las siguientes funcionalidades:
 ## Intrucciones
 - Revisa los requisitos para desplegar un cluster de Kubernetes con KinD, Istio y una configuración mínima para el DNS del cluster [Requisitos previos](docs/REQUISITES.md)
 - Aquí encontrarás algunos ejemplo con el comando Curl para hacer peticiones al API [Instrucciones de uso del API](docs/USAGE.md)
+- Para compilar el programa seguir las [instrucciones](docs/BUILD.md) 
